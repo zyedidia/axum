@@ -46,10 +46,11 @@ module soc_top
 
     typedef enum logic[1:0] {
         Ram,
+        Gpio,
         Timer
     } bus_device_e;
 
-    localparam int NrDevices = 2;
+    localparam int NrDevices = 3;
     localparam int NrHosts = 1;
 
     // interrupts
@@ -81,6 +82,8 @@ module soc_top
     logic [31:0] cfg_device_addr_mask [NrDevices];
     assign cfg_device_addr_base[Ram] = 32'h100000;
     assign cfg_device_addr_mask[Ram] = ~MEM_MASK; // 8 kB
+    assign cfg_device_addr_base[Gpio] = 32'h20000;
+    assign cfg_device_addr_mask[Gpio] = 32'h3FF;
     assign cfg_device_addr_base[Timer] = 32'h30000;
     assign cfg_device_addr_mask[Timer] = ~32'h3FF; // 1 kB
 
@@ -222,6 +225,24 @@ module soc_top
         .timer_rdata_o  (device_rdata[Timer]),
         .timer_err_o    (device_err[Timer]),
         .timer_intr_o   (timer_irq)
+    );
+
+    gpio #(
+        .DataWidth    (32),
+        .AddressWidth (32)
+    ) u_gpio (
+        .clk_i          (clk_sys),
+        .rst_ni         (rst_sys_n),
+
+        .gpio_req_i    (device_req[Gpio]),
+        .gpio_we_i     (device_we[Gpio]),
+        .gpio_be_i     (device_be[Gpio]),
+        .gpio_addr_i   (device_addr[Gpio]),
+        .gpio_wdata_i  (device_wdata[Gpio]),
+        .gpio_rvalid_o (device_rvalid[Gpio]),
+        .gpio_rdata_o  (device_rdata[Gpio]),
+        .gpio_err_o    (device_err[Gpio]),
+        .gpio_intr_o   ()
     );
 
     assign rgb_led0_r = instr_rdata != 32'h06f;

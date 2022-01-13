@@ -1,8 +1,6 @@
 #include <iostream>
 #include <fstream>
 
-#include <backends/cxxrtl/cxxrtl_vcd.h>
-
 #include "soc_top.cxx"
 
 void reset(cxxrtl_design::p_soc__top& soc) {
@@ -29,33 +27,15 @@ void dump_mem(cxxrtl_design::p_soc__top& soc, unsigned max_addr) {
 int main() {
     cxxrtl_design::p_soc__top soc;
 
-    cxxrtl::debug_items all_debug_items;
-    soc.debug_info(all_debug_items);
-
-    cxxrtl::vcd_writer vcd;
-    vcd.timescale(10, "ns");
-
-    vcd.add(all_debug_items);
-
-    std::ofstream waveform("waveform.vcd");
-
     reset(soc);
 
     const int ncycle = 1000;
     for (int i = 0; i < ncycle; i++) {
         soc.p_clk.set<bool>(false);
         soc.step();
-        vcd.sample(i*2);
-
-        waveform << vcd.buffer;
-        vcd.buffer.clear();
 
         soc.p_clk.set<bool>(true);
         soc.step();
-        vcd.sample(i*2+1);
-
-        waveform << vcd.buffer;
-        vcd.buffer.clear();
     }
 
     printf("Simulated %d clock cycles\n", ncycle);

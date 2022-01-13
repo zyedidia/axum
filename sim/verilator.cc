@@ -28,10 +28,14 @@ int main(int argc, char **argv) {
         dut->eval();
         tfp->dump(i*2);
 
+        printf("%d\n", dut->rgb_led0_r);
+
         dut->clk = 1;
         dut->eval();
         tfp->dump(i*2+1);
         tfp->flush();
+
+        printf("%d\n", dut->rgb_led0_r);
     }
 
     tfp->close();
