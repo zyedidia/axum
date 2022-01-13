@@ -35,6 +35,8 @@ SOURCES := ibex/rtl/ibex_alu.sv \
 		   ibex/rtl/ibex_top_tracing.sv \
 		   ibex/rtl/ibex_wb_stage.sv \
 		   ibex/shared/rtl/ram_2p.sv \
+		   ibex/shared/rtl/bus.sv \
+		   ibex/shared/rtl/timer.sv \
 		   rtl/prim_generic_ram_2p.sv \
 		   rtl/prim_ram_2p.sv \
 		   rtl/$(TOP).sv
