@@ -28,16 +28,11 @@ int main(int argc, char **argv) {
         dut->eval();
         tfp->dump(i*2);
 
-        printf("%x\n", dut->rootp->soc_top__DOT__instr_rdata);
-
         dut->clk = 1;
         dut->eval();
         tfp->dump(i*2+1);
         tfp->flush();
     }
-
-    printf("%d\n", dut->rootp->soc_top__DOT__u_ram__DOT__u_ram__DOT__gen_generic__DOT__u_impl_generic__DOT__mem[24]);
-    printf("%d\n", dut->rootp->soc_top__DOT__u_ram__DOT__u_ram__DOT__gen_generic__DOT__u_impl_generic__DOT__mem[25]);
 
     tfp->close();
     return 0;
