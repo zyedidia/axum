@@ -8,10 +8,10 @@ int main(int argc, char **argv) {
     Verilated::traceEverOn(true);
 
 	// Initialize Verilators variables
-	Verilated::commandArgs(argc, argv);
+    Verilated::commandArgs(argc, argv);
 
 	// Create an instance of our module under test
-	Vsoc_top* dut = new Vsoc_top;
+    Vsoc_top* dut = new Vsoc_top;
 
     VerilatedVcdC* tfp = new VerilatedVcdC;
     dut->trace(tfp, 99);
@@ -22,20 +22,19 @@ int main(int argc, char **argv) {
     dut->rst_n = 1;
     dut->eval();
 
-	// Tick the clock until we are done
-	for (int i = 0; i < 1000; i++) {
-		dut->clk = 0;
+    // Tick the clock until we are done
+    for (int i = 0; i < 1000; i++) {
+        dut->clk = 0;
         dut->eval();
         tfp->dump(i*2);
 
-        // printf("%x\n", dut->rootp->soc_top__DOT__u_top__DOT__u_ibex_core__DOT__instr_rdata_id);
         printf("%x\n", dut->rootp->soc_top__DOT__instr_rdata);
 
-		dut->clk = 1;
+        dut->clk = 1;
         dut->eval();
         tfp->dump(i*2+1);
         tfp->flush();
-	}
+    }
 
     printf("%d\n", dut->rootp->soc_top__DOT__u_ram__DOT__u_ram__DOT__gen_generic__DOT__u_impl_generic__DOT__mem[24]);
     printf("%d\n", dut->rootp->soc_top__DOT__u_ram__DOT__u_ram__DOT__gen_generic__DOT__u_impl_generic__DOT__mem[25]);

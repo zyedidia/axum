@@ -6,7 +6,8 @@ MEM ?= mem/empty.vmem
 
 CXXRTL=sim/$(TOP).cxx
 TB=sim/sim.cc
-SIM_BIN=sim/sim.out
+VERILATOR_SIM=sim/verilator.cc
+SIM_BIN=sim.out
 CXX_FLAGS=-O2 -std=c++14
 
 SOURCES := ibex/rtl/ibex_alu.sv \
@@ -110,9 +111,8 @@ $(SIM_BIN): $(CXXRTL) $(TB)
 test: $(SIM_BIN)
 	@./$<
 
-# TODO: improve this command so it is not hardcoded
-verilator:
-	verilator -sv -cc -DSYNTHESIS ./ibex/vendor/lowrisc_ip/ip/prim/rtl/prim_ram_1p_pkg.sv ./ibex/vendor/lowrisc_ip/ip/prim/rtl/prim_ram_2p_pkg.sv ./ibex/vendor/lowrisc_ip/ip/prim/rtl/prim_secded_pkg.sv -I./rtl -I./ibex/vendor/lowrisc_ip/ip/prim/rtl -I./ibex/vendor/lowrisc_ip/dv/sv/dv_utils ibex/rtl/*_pkg.sv $(SOURCES) -Wno-WIDTH -Wno-LITENDIAN --top soc_top -GSRAMInitFile='"mem/riscvtest.vmem"' --trace --exe --build sim/verilator.cc -o test
+$(SIM_BIN).vtor: $(VERILATOR_SIM)
+	verilator -sv -cc -DSYNTHESIS ./ibex/vendor/lowrisc_ip/ip/prim/rtl/prim_ram_1p_pkg.sv ./ibex/vendor/lowrisc_ip/ip/prim/rtl/prim_ram_2p_pkg.sv ./ibex/vendor/lowrisc_ip/ip/prim/rtl/prim_secded_pkg.sv -I./rtl -I./ibex/vendor/lowrisc_ip/ip/prim/rtl -I./ibex/vendor/lowrisc_ip/dv/sv/dv_utils ibex/rtl/*_pkg.sv $(SOURCES) -Wno-WIDTH -Wno-LITENDIAN --top $(TOP) -GSRAMInitFile='"$(MEM)"' --trace --exe --build $< -o $@
 
 
 clean:
