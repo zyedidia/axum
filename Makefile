@@ -116,7 +116,8 @@ verilator:
 
 
 clean:
+	rm -rf obj_dir
 	rm -rf generated
-	rm -f $(TOP).bit $(TOP).dfu $(TOP)_out.config $(TOP).json $(TOP) util.json *_sim.cc *.vcd
+	rm -f $(TOP).bit $(TOP).dfu $(TOP)_out.config $(TOP).json $(TOP) $(REPORT) *_sim.cc *.vcd
 
 .PHONY: clean lint prog test report waveform all synth tb
