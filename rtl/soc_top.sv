@@ -109,15 +109,8 @@ module soc_top (
 
 
   // SRAM to Ibex
-  always_ff @(posedge clk_sys or negedge rst_sys_n) begin
-    if (!rst_sys_n) begin
-      instr_gnt    <= '0;
-      data_gnt     <= '0;
-    end else begin
-      instr_gnt    <= instr_req ;
-      data_gnt     <=  data_req ;
-    end
-  end
+  assign instr_gnt = instr_req;
+  assign data_gnt = data_req;
 
   assign rgb_led0_r = data_wdata[0];
 
