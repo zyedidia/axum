@@ -2,6 +2,23 @@ module soc_top
     (
         input logic clk,
         input logic rst_n,
+
+        // input logic usr_btn_i,
+
+        inout logic gpio_0,
+        inout logic gpio_1,
+        inout logic gpio_5,
+        inout logic gpio_6,
+        inout logic gpio_9,
+        inout logic gpio_10,
+        inout logic gpio_11,
+        inout logic gpio_12,
+        inout logic gpio_13,
+        inout logic gpio_a0,
+        inout logic gpio_a1,
+        inout logic gpio_a2,
+        inout logic gpio_a3,
+
         output logic rgb_led0_r,
         output logic rgb_led0_g,
         output logic rgb_led0_b
@@ -83,7 +100,7 @@ module soc_top
     assign cfg_device_addr_base[Ram] = 32'h100000;
     assign cfg_device_addr_mask[Ram] = ~MEM_MASK; // 8 kB
     assign cfg_device_addr_base[Gpio] = 32'h20000;
-    assign cfg_device_addr_mask[Gpio] = 32'h3FF;
+    assign cfg_device_addr_mask[Gpio] = ~32'h3FF; // 1 kB
     assign cfg_device_addr_base[Timer] = 32'h30000;
     assign cfg_device_addr_mask[Timer] = ~32'h3FF; // 1 kB
 
@@ -227,12 +244,35 @@ module soc_top
         .timer_intr_o   (timer_irq)
     );
 
+
+    logic [31:0] gpio_inout;
+
+    // assign gpio_0 = gpio_inout[0];
+    // assign gpio_1 = gpio_inout[1];
+    // assign gpio_5 = gpio_inout[2];
+    // assign gpio_6 = gpio_inout[3];
+    // assign gpio_9 = gpio_inout[4];
+    // assign gpio_10 = gpio_inout[5];
+    // assign gpio_11 = gpio_inout[6];
+    // assign gpio_12 = gpio_inout[7];
+    // assign gpio_13 = gpio_inout[8];
+    // assign gpio_a0 = gpio_inout[9];
+    // assign gpio_a1 = gpio_inout[10];
+    // assign gpio_a2 = gpio_inout[11];
+    // assign gpio_a3 = gpio_inout[12];
+    // assign gpio_inout[13] = usr_btn_i;
+    assign rgb_led0_r = ~gpio_inout[14];
+    assign rgb_led0_g = ~gpio_inout[15];
+    assign rgb_led0_b = ~gpio_inout[16];
+
     gpio #(
         .DataWidth    (32),
         .AddressWidth (32)
     ) u_gpio (
-        .clk_i          (clk_sys),
-        .rst_ni         (rst_sys_n),
+        .clk_i         (clk_sys),
+        .rst_ni        (rst_sys_n),
+
+        .gpio_inout    (gpio_inout),
 
         .gpio_req_i    (device_req[Gpio]),
         .gpio_we_i     (device_we[Gpio]),
@@ -244,8 +284,4 @@ module soc_top
         .gpio_err_o    (device_err[Gpio]),
         .gpio_intr_o   ()
     );
-
-    assign rgb_led0_r = instr_rdata != 32'h06f;
-    assign rgb_led0_g = 1'b1;
-    assign rgb_led0_b = 1'b1;
 endmodule

@@ -39,6 +39,7 @@ SOURCES := ibex/rtl/ibex_alu.sv \
 		   ibex/shared/rtl/timer.sv \
 		   rtl/prim_generic_ram_2p.sv \
 		   rtl/prim_ram_2p.sv \
+		   rtl/gpio.sv \
 		   rtl/$(TOP).sv
 
 GENV=$(addprefix $(GENDIR)/,$(notdir $(SOURCES:.sv=.v)))
@@ -104,22 +105,25 @@ prog: $(TOP).dfu
 
 # Simulation rules
 
+# CXXRTL
 $(CXXRTL): $(SYNTH)
 	yosys -p 'read_verilog -defer -noautowire -sv $(SYNTH); chparam -set SRAMInitFile "$(MEM)" $(TOP); hierarchy -top $(TOP); write_cxxrtl -nohierarchy -O6 -g0 $(CXXRTL)'
 
 $(SIM_BIN): $(CXXRTL) $(TB)
 	$(CXX) $(CXX_FLAGS) -I $(shell yosys-config --datdir)/include $(TB) -o $@
 
-test: $(SIM_BIN)
-	@./$<
-
+# Verilator
 $(SIM_BIN).vtor: $(VERILATOR_SIM)
 	verilator -sv -cc -DSYNTHESIS ./ibex/vendor/lowrisc_ip/ip/prim/rtl/prim_ram_1p_pkg.sv ./ibex/vendor/lowrisc_ip/ip/prim/rtl/prim_ram_2p_pkg.sv ./ibex/vendor/lowrisc_ip/ip/prim/rtl/prim_secded_pkg.sv -I./rtl -I./ibex/vendor/lowrisc_ip/ip/prim/rtl -I./ibex/vendor/lowrisc_ip/dv/sv/dv_utils ibex/rtl/*_pkg.sv $(SOURCES) -Wno-WIDTH -Wno-LITENDIAN --top $(TOP) -GSRAMInitFile='"$(MEM)"' --trace --exe --build $< -o $@
 
+# Linting
+
+lint:
+	verilator -sv -Wall --lint-only -DSYNTHESIS ./ibex/vendor/lowrisc_ip/ip/prim/rtl/prim_ram_1p_pkg.sv ./ibex/vendor/lowrisc_ip/ip/prim/rtl/prim_ram_2p_pkg.sv ./ibex/vendor/lowrisc_ip/ip/prim/rtl/prim_secded_pkg.sv -I./rtl -I./ibex/vendor/lowrisc_ip/ip/prim/rtl -I./ibex/vendor/lowrisc_ip/dv/sv/dv_utils ibex/rtl/*_pkg.sv $(SOURCES) -Wno-WIDTH -Wno-LITENDIAN --top $(TOP) -GSRAMInitFile='"$(MEM)"'
 
 clean:
 	rm -rf obj_dir
 	rm -rf generated
 	rm -f $(TOP).bit $(TOP).dfu $(TOP)_out.config $(TOP).json $(TOP) $(REPORT) *.vcd $(CXXRTL) $(SIM_BIN)
 
-.PHONY: clean lint prog test report waveform all synth tb
+.PHONY: clean prog generate all lint
