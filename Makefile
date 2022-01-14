@@ -1,4 +1,4 @@
-TOP=soc_top
+TOP=axum_top
 CONS=lpf/orangecrab.lpf
 REPORT=report.json
 GENDIR=generated
@@ -36,20 +36,33 @@ SOURCES := ibex/rtl/ibex_alu.sv \
 		   ibex/rtl/ibex_wb_stage.sv \
 		   ibex/shared/rtl/ram_2p.sv \
 		   ibex/shared/rtl/bus.sv \
-		   rtl/prim_generic_ram_2p.sv \
-		   rtl/prim_ram_2p.sv \
+		   rtl/lib/prim_generic_ram_2p.sv \
+		   rtl/lib/prim_ram_2p.sv \
 		   rtl/axum_gpio.sv \
 		   rtl/axum_timer.sv \
 		   rtl/$(TOP).sv
 
 GENV=$(addprefix $(GENDIR)/,$(notdir $(SOURCES:.sv=.v)))
-SYNTH=$(GENV) rtl/clkgen.v rtl/prim_clock_gating.v
+SYNTH=$(GENV) rtl/lib/clkgen.v rtl/lib/prim_clock_gating.v
 
 all: $(TOP).dfu
 
 generate: $(GENV)
 
 print-%  : ; @echo $* = $($*)
+
+$(GENDIR)/%.v: rtl/lib/%.sv
+	sv2v \
+	--define=SYNTHESIS \
+	./ibex/rtl/*_pkg.sv \
+	./ibex/vendor/lowrisc_ip/ip/prim/rtl/prim_ram_1p_pkg.sv \
+	./ibex/vendor/lowrisc_ip/ip/prim/rtl/prim_ram_2p_pkg.sv \
+	./ibex/vendor/lowrisc_ip/ip/prim/rtl/prim_secded_pkg.sv \
+	-I./rtl/lib \
+	-I./ibex/vendor/lowrisc_ip/ip/prim/rtl \
+	-I./ibex/vendor/lowrisc_ip/dv/sv/dv_utils \
+	-w $@ \
+	$<
 
 $(GENDIR)/%.v: rtl/%.sv
 	sv2v \
@@ -58,7 +71,6 @@ $(GENDIR)/%.v: rtl/%.sv
 	./ibex/vendor/lowrisc_ip/ip/prim/rtl/prim_ram_1p_pkg.sv \
 	./ibex/vendor/lowrisc_ip/ip/prim/rtl/prim_ram_2p_pkg.sv \
 	./ibex/vendor/lowrisc_ip/ip/prim/rtl/prim_secded_pkg.sv \
-	-I./rtl \
 	-I./ibex/vendor/lowrisc_ip/ip/prim/rtl \
 	-I./ibex/vendor/lowrisc_ip/dv/sv/dv_utils \
 	-w $@ \
@@ -115,18 +127,22 @@ $(CXXRTL): $(SYNTH)
 $(SIM_BIN): $(CXXRTL) $(TB)
 	$(CXX) $(CXX_FLAGS) -I $(shell yosys-config --datdir)/include $(TB) -o $@
 
+cxxrtl: $(SIM_BIN)
+
 # Verilator
-$(SIM_BIN).vtor: $(VERILATOR_SIM)
-	verilator -sv -cc -DSYNTHESIS ./ibex/vendor/lowrisc_ip/ip/prim/rtl/prim_ram_1p_pkg.sv ./ibex/vendor/lowrisc_ip/ip/prim/rtl/prim_ram_2p_pkg.sv ./ibex/vendor/lowrisc_ip/ip/prim/rtl/prim_secded_pkg.sv -I./rtl -I./ibex/vendor/lowrisc_ip/ip/prim/rtl -I./ibex/vendor/lowrisc_ip/dv/sv/dv_utils ibex/rtl/*_pkg.sv $(SOURCES) -Wno-WIDTH -Wno-LITENDIAN --top $(TOP) -GSRAMInitFile='"$(MEM)"' --trace --exe --build $< -o $@
+obj_dir/$(SIM_BIN).vtor: $(VERILATOR_SIM) $(SOURCES)
+	verilator -sv -cc -DSYNTHESIS ./ibex/vendor/lowrisc_ip/ip/prim/rtl/prim_ram_1p_pkg.sv ./ibex/vendor/lowrisc_ip/ip/prim/rtl/prim_ram_2p_pkg.sv ./ibex/vendor/lowrisc_ip/ip/prim/rtl/prim_secded_pkg.sv -I./rtl/lib -I./ibex/vendor/lowrisc_ip/ip/prim/rtl -I./ibex/vendor/lowrisc_ip/dv/sv/dv_utils ibex/rtl/*_pkg.sv $(SOURCES) -Wno-WIDTH -Wno-LITENDIAN --top $(TOP) -GSRAMInitFile='"$(MEM)"' --trace --exe --build $< -o $(notdir $@)
+
+verilator: obj_dir/$(SIM_BIN).vtor
 
 # Linting
 
 lint:
-	verilator -sv -Wall --lint-only -DSYNTHESIS ./ibex/vendor/lowrisc_ip/ip/prim/rtl/prim_ram_1p_pkg.sv ./ibex/vendor/lowrisc_ip/ip/prim/rtl/prim_ram_2p_pkg.sv ./ibex/vendor/lowrisc_ip/ip/prim/rtl/prim_secded_pkg.sv -I./rtl -I./ibex/vendor/lowrisc_ip/ip/prim/rtl -I./ibex/vendor/lowrisc_ip/dv/sv/dv_utils ibex/rtl/*_pkg.sv $(SOURCES) -Wno-WIDTH -Wno-LITENDIAN --top $(TOP) -GSRAMInitFile='"$(MEM)"'
+	verilator -sv -Wall --lint-only -DSYNTHESIS ./ibex/vendor/lowrisc_ip/ip/prim/rtl/prim_ram_1p_pkg.sv ./ibex/vendor/lowrisc_ip/ip/prim/rtl/prim_ram_2p_pkg.sv ./ibex/vendor/lowrisc_ip/ip/prim/rtl/prim_secded_pkg.sv -I./rtl/lib -I./ibex/vendor/lowrisc_ip/ip/prim/rtl -I./ibex/vendor/lowrisc_ip/dv/sv/dv_utils ibex/rtl/*_pkg.sv $(SOURCES) -Wno-WIDTH -Wno-LITENDIAN --top $(TOP) -GSRAMInitFile='"$(MEM)"'
 
 clean:
 	rm -rf obj_dir
 	rm -rf generated
 	rm -f $(TOP).bit $(TOP).dfu $(TOP)_out.config $(TOP).json $(TOP) $(REPORT) *.vcd $(CXXRTL) $(SIM_BIN)
 
-.PHONY: clean prog generate all lint
+.PHONY: clean prog generate all lint verilator cxxrtl

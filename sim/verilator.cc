@@ -1,10 +1,10 @@
 #include <stdlib.h>
-#include "Vsoc_top.h"
-#include "Vsoc_top___024root.h"
+#include "Vaxum_top.h"
+#include "Vaxum_top___024root.h"
 #include "verilated.h"
 #include "verilated_vcd_c.h"
 
-void reset(Vsoc_top* dut) {
+void reset(Vaxum_top* dut) {
     dut->rst_n = 0;
     dut->clk = 1;
     dut->eval();
@@ -24,7 +24,7 @@ int main(int argc, char **argv) {
     Verilated::commandArgs(argc, argv);
 
 	// Create an instance of our module under test
-    Vsoc_top* dut = new Vsoc_top;
+    Vaxum_top* dut = new Vaxum_top;
 
     VerilatedVcdC* tfp = new VerilatedVcdC;
     dut->trace(tfp, 99);

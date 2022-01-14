@@ -1,4 +1,4 @@
-module soc_top
+module axum_top
     (
         input logic clk,
         input logic rst_n,
