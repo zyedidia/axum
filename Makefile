@@ -1,8 +1,8 @@
+include config.mk
+
 TOP=axum_top
-CONS=lpf/orangecrab.lpf
 REPORT=report.json
 GENDIR=generated
-MEM ?= mem/riscvtest.vmem
 
 CXXRTL=sim/$(TOP).cxx
 TB=sim/cxxrtl.cc
@@ -54,11 +54,13 @@ PKG := ./ibex/rtl/*_pkg.sv \
 	   ./ibex/vendor/lowrisc_ip/ip/prim/rtl/prim_ram_2p_pkg.sv \
 	   ./ibex/vendor/lowrisc_ip/ip/prim/rtl/prim_secded_pkg.sv
 
-all: $(TOP).dfu
+# Synthesis rules
+
+include boards/$(BOARD).mk
+
+# SystemVerilog to Verilog conversion rules
 
 generate: $(GENV)
-
-print-%  : ; @echo $* = $($*)
 
 $(GENDIR)/%.v: rtl/lib/%.sv
 	sv2v $(DEFINE) $(PKG) $(INC) -w $@ $<
@@ -72,27 +74,10 @@ $(GENDIR)/%.v: ibex/shared/rtl/%.sv
 $(GENDIR)/%.v: ibex/rtl/%.sv
 	sv2v $(DEFINE) $(PKG) $(INC) -w $@ $<
 
-# Synthesis rules
-
-$(TOP).json: $(SYNTH)
-	yosys -p 'read_verilog -defer -noautowire -sv $(SYNTH); chparam -set SRAMInitFile "$(MEM)" $(TOP); chparam -set ECP5PLL 1 $(TOP); hierarchy -top $(TOP); synth_ecp5 -top $(TOP) -json $@'
-
-$(TOP)_out.config: $(CONS) $(TOP).json
-	nextpnr-ecp5 -q --lpf-allow-unconstrained --report $(REPORT) --25k --freq 48 --lpf $< --package CSFBGA285 --textcfg $@ --json $(TOP).json
-
-$(TOP).bit: $(TOP)_out.config
-	ecppack --compress --freq 38.8 --input $< --bit $@
-
-$(TOP).dfu: $(TOP).bit
-	cp $< $@
-	dfu-suffix -v 1209 -p 5af0 -a $@
-
-prog: $(TOP).dfu
-	sudo dfu-util -D $<
-
 # Simulation rules
 
-# CXXRTL
+## CXXRTL
+
 $(CXXRTL): $(SYNTH)
 	yosys -p 'read_verilog -defer -noautowire -sv $(SYNTH); chparam -set SRAMInitFile "$(MEM)" $(TOP); hierarchy -top $(TOP); write_cxxrtl -nohierarchy -O6 -g0 $(CXXRTL)'
 
@@ -101,7 +86,8 @@ $(SIM_BIN): $(CXXRTL) $(TB)
 
 cxxrtl: $(SIM_BIN)
 
-# Verilator
+## Verilator
+
 obj_dir/$(SIM_BIN).vtor: $(VERILATOR_SIM) $(SOURCES)
 	verilator -sv -cc $(DEFINE) $(PKG) $(INC) $(SOURCES) -Wno-WIDTH -Wno-LITENDIAN --top $(TOP) -GSRAMInitFile='"$(MEM)"' --trace --exe --build $< -o $(notdir $@)
 
@@ -114,7 +100,11 @@ lint:
 
 clean:
 	rm -rf obj_dir
-	rm -rf generated
+	rm -f generated/*
 	rm -f $(TOP).bit $(TOP).dfu $(TOP)_out.config $(TOP).json $(TOP) $(REPORT) *.vcd $(CXXRTL) $(SIM_BIN)
+
+# Debug rule
+
+print-%  : ; @echo $* = $($*)
 
 .PHONY: clean prog generate all lint verilator cxxrtl
