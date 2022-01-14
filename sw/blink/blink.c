@@ -1,11 +1,12 @@
 #include "libaxum.h"
 
 int main() {
-    gpio_set_output(14);
+    const int pin = GPIO_0;
+    gpio_set_output(pin);
 
     int val = 0;
     while (1) {
-        gpio_write(14, val);
+        gpio_write(pin, val);
         val = !val;
         delay_ms(500);
     }

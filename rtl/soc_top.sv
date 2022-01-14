@@ -3,21 +3,21 @@ module soc_top
         input logic clk,
         input logic rst_n,
 
-        // input logic usr_btn_i,
+        input logic usr_btn_i,
 
-        inout logic gpio_0,
-        inout logic gpio_1,
-        inout logic gpio_5,
-        inout logic gpio_6,
-        inout logic gpio_9,
-        inout logic gpio_10,
-        inout logic gpio_11,
-        inout logic gpio_12,
-        inout logic gpio_13,
-        inout logic gpio_a0,
-        inout logic gpio_a1,
-        inout logic gpio_a2,
-        inout logic gpio_a3,
+        inout tri gpio_0,
+        inout tri gpio_1,
+        inout tri gpio_5,
+        inout tri gpio_6,
+        inout tri gpio_9,
+        inout tri gpio_10,
+        inout tri gpio_11,
+        inout tri gpio_12,
+        inout tri gpio_13,
+        inout tri gpio_a0,
+        inout tri gpio_a1,
+        inout tri gpio_a2,
+        inout tri gpio_a3,
 
         output logic rgb_led0_r,
         output logic rgb_led0_g,
@@ -245,22 +245,22 @@ module soc_top
     );
 
 
-    logic [31:0] gpio_inout;
+    tri [31:0] gpio_inout;
 
-    // assign gpio_0 = gpio_inout[0];
-    // assign gpio_1 = gpio_inout[1];
-    // assign gpio_5 = gpio_inout[2];
-    // assign gpio_6 = gpio_inout[3];
-    // assign gpio_9 = gpio_inout[4];
-    // assign gpio_10 = gpio_inout[5];
-    // assign gpio_11 = gpio_inout[6];
-    // assign gpio_12 = gpio_inout[7];
-    // assign gpio_13 = gpio_inout[8];
-    // assign gpio_a0 = gpio_inout[9];
-    // assign gpio_a1 = gpio_inout[10];
-    // assign gpio_a2 = gpio_inout[11];
-    // assign gpio_a3 = gpio_inout[12];
-    // assign gpio_inout[13] = usr_btn_i;
+    assign gpio_0 = gpio_inout[0];
+    assign gpio_1 = gpio_inout[1];
+    assign gpio_5 = gpio_inout[2];
+    assign gpio_6 = gpio_inout[3];
+    assign gpio_9 = gpio_inout[4];
+    assign gpio_10 = gpio_inout[5];
+    assign gpio_11 = gpio_inout[6];
+    assign gpio_12 = gpio_inout[7];
+    assign gpio_13 = gpio_inout[8];
+    assign gpio_a0 = gpio_inout[9];
+    assign gpio_a1 = gpio_inout[10];
+    assign gpio_a2 = gpio_inout[11];
+    assign gpio_a3 = gpio_inout[12];
+    assign gpio_inout[31] = ~usr_btn_i;
     assign rgb_led0_r = ~gpio_inout[14];
     assign rgb_led0_g = ~gpio_inout[15];
     assign rgb_led0_b = ~gpio_inout[16];

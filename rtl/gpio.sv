@@ -7,7 +7,7 @@ module gpio
         input logic clk_i,
         input logic rst_ni,
 
-        output logic [31:0] gpio_inout,
+        inout tri [31:0] gpio_inout,
 
         // Bus interface
         input  logic                    gpio_req_i,
@@ -82,7 +82,11 @@ module gpio
         rdata_d = 'b0;
         error_d = 1'b0;
         unique case (gpio_addr_i[ADDR_OFFSET-1:0])
-            INPUT_VAL:  rdata_d = input_en_q & gpio_inout;
+            INPUT_VAL:  begin 
+                for (int i = 0; i < 32; i++) begin
+                    rdata_d[i] = input_en_q[i] ? gpio_inout[i] : 1'b0;
+                end
+            end
             INPUT_EN:   rdata_d = input_en_q;
             OUTPUT_EN:  rdata_d = output_en_q;
             OUTPUT_VAL: rdata_d = output_val_q;
@@ -120,8 +124,8 @@ module gpio
 
     generate
         genvar i;
-        for (i = 0; i < 32; i++) begin
-            assign gpio_inout[i] = output_en_q[i] ? output_val_q[i] ^ out_xor_q[i] : 1'b0;
+        for (i = 0; i < 31; i++) begin
+            assign gpio_inout[i] = output_en_q[i] ? output_val_q[i] ^ out_xor_q[i] : 1'bz;
         end
     endgenerate
 endmodule
