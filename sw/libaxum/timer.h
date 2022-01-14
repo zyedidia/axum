@@ -2,7 +2,7 @@
 
 #include "mem.h"
 
-#define TIMER_ADDR 0x30000
+#define TIMER_ADDR 0x30010
 #define CLK_FREQ_MHZ 32
 
 static inline unsigned timer_get_cycles() {

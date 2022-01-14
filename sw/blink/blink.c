@@ -1,8 +1,15 @@
 #include "libaxum.h"
 
+void timer_interrupt() {
+    gpio_write(GPIO_LED_R, gpio_read(GPIO_BTN));
+}
+
 int main() {
     const int pin = GPIO_0;
     gpio_set_output(pin);
+
+    gpio_set_output(GPIO_LED_R);
+    gpio_set_input(GPIO_BTN);
 
     int val = 0;
     while (1) {

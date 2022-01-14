@@ -226,7 +226,7 @@ module soc_top
         .b_rdata_o   (instr_rdata)
     );
 
-    timer #(
+    axum_timer #(
         .DataWidth    (32),
         .AddressWidth (32)
     ) u_timer (
@@ -265,7 +265,7 @@ module soc_top
     assign rgb_led0_g = ~gpio_inout[15];
     assign rgb_led0_b = ~gpio_inout[16];
 
-    gpio #(
+    axum_gpio #(
         .DataWidth    (32),
         .AddressWidth (32)
     ) u_gpio (

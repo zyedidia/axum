@@ -1,4 +1,4 @@
-module gpio
+module axum_gpio
     #(
         parameter int unsigned DataWidth    = 32,
         parameter int unsigned AddressWidth = 32

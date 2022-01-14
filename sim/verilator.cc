@@ -4,6 +4,19 @@
 #include "verilated.h"
 #include "verilated_vcd_c.h"
 
+void reset(Vsoc_top* dut) {
+    dut->rst_n = 0;
+    dut->clk = 1;
+    dut->eval();
+    dut->clk = 0;
+    dut->eval();
+    dut->clk = 1;
+    dut->eval();
+    dut->clk = 0;
+    dut->eval();
+    dut->rst_n = 1;
+}
+
 int main(int argc, char **argv) {
     Verilated::traceEverOn(true);
 
@@ -17,10 +30,7 @@ int main(int argc, char **argv) {
     dut->trace(tfp, 99);
     tfp->open("trace.vcd");
 
-    dut->rst_n = 0;
-    dut->eval();
-    dut->rst_n = 1;
-    dut->eval();
+    reset(dut);
 
     // Tick the clock until we are done
     for (int i = 0; i < 1000; i++) {
@@ -28,14 +38,10 @@ int main(int argc, char **argv) {
         dut->eval();
         tfp->dump(i*2);
 
-        printf("%d\n", dut->rgb_led0_r);
-
         dut->clk = 1;
         dut->eval();
         tfp->dump(i*2+1);
         tfp->flush();
-
-        printf("%d\n", dut->rgb_led0_r);
     }
 
     tfp->close();

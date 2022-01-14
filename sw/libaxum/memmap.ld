@@ -4,7 +4,12 @@ ENTRY(_start)
 
 SECTIONS
 {
-    .text 0x100000 : {
+    .vectors 0x100000 : {
+        . = ALIGN(4);
+        KEEP(*(.vectors))
+    }
+    . = ALIGN(4);
+    .text : {
         __code_start__ = .;
         KEEP(*(.text.boot))
         *(.text*)

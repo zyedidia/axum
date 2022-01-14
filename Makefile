@@ -36,10 +36,10 @@ SOURCES := ibex/rtl/ibex_alu.sv \
 		   ibex/rtl/ibex_wb_stage.sv \
 		   ibex/shared/rtl/ram_2p.sv \
 		   ibex/shared/rtl/bus.sv \
-		   ibex/shared/rtl/timer.sv \
 		   rtl/prim_generic_ram_2p.sv \
 		   rtl/prim_ram_2p.sv \
-		   rtl/gpio.sv \
+		   rtl/axum_gpio.sv \
+		   rtl/axum_timer.sv \
 		   rtl/$(TOP).sv
 
 GENV=$(addprefix $(GENDIR)/,$(notdir $(SOURCES:.sv=.v)))
@@ -61,7 +61,8 @@ $(GENDIR)/%.v: rtl/%.sv
 	-I./rtl \
 	-I./ibex/vendor/lowrisc_ip/ip/prim/rtl \
 	-I./ibex/vendor/lowrisc_ip/dv/sv/dv_utils \
-	$< > $@
+	-w $@ \
+	$<
 
 $(GENDIR)/%.v: ibex/shared/rtl/%.sv
 	sv2v \
@@ -72,7 +73,8 @@ $(GENDIR)/%.v: ibex/shared/rtl/%.sv
 	./ibex/vendor/lowrisc_ip/ip/prim/rtl/prim_secded_pkg.sv \
 	-I./ibex/vendor/lowrisc_ip/ip/prim/rtl \
 	-I./ibex/vendor/lowrisc_ip/dv/sv/dv_utils \
-	$< > $@
+	-w $@ \
+	$<
 
 $(GENDIR)/%.v: ibex/rtl/%.sv
 	sv2v \
@@ -83,7 +85,8 @@ $(GENDIR)/%.v: ibex/rtl/%.sv
 	./ibex/vendor/lowrisc_ip/ip/prim/rtl/prim_secded_pkg.sv \
 	-I./ibex/vendor/lowrisc_ip/ip/prim/rtl \
 	-I./ibex/vendor/lowrisc_ip/dv/sv/dv_utils \
-	$< > $@
+	-w $@ \
+	$<
 
 # Synthesis rules
 
