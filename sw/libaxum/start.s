@@ -8,9 +8,10 @@ _start:
 	la t0, _mscratch
 	csrw mscratch, t0
 
-	# timer interrupt every 16777215 cycles
+	# timer interrupt every 65536 cycles
+	# at 32MHz this is every 2ms
 	la t0, timer_base
-	li t1, 0xffffff
+	li t1, 0xffff
 	sw t1, 8(t0)
 
 	# enable interrupts
@@ -43,9 +44,9 @@ _timer_intr_handler:
 	sw x30, 56(x31)
 
 	la t0, timer_base
+	sw x0, 0(t0) # clear mtime
 	lw x1, 8(t0)
-	sw x1, 8(t0)
-	sw x0, 8(t0)
+	sw x1, 8(t0) # rewrite mtimecmp to clear irq
 
 	call timer_interrupt
 
