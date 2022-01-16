@@ -56,7 +56,7 @@ PKG := ./ibex/rtl/*_pkg.sv \
 
 # Synthesis rules
 
-include boards/$(BOARD).mk
+include boards/$(BOARD)/$(BOARD).mk
 
 # SystemVerilog to Verilog conversion rules
 
