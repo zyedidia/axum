@@ -1,4 +1,4 @@
-CONS=boards/orangecrab.lpf
+CONS=boards/orangecrab/orangecrab.lpf
 
 $(TOP).dfu: $(TOP).bit
 	cp $< $@

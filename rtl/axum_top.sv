@@ -16,8 +16,9 @@ module axum_top
         inout tri gpio_13,
         inout tri gpio_a0,
         inout tri gpio_a1,
-        inout tri gpio_a2,
-        inout tri gpio_a3,
+
+        input logic gpio_a2, // rx
+        output logic gpio_a3, // tx
 
         output logic rgb_led0_r,
         output logic rgb_led0_g,
@@ -64,10 +65,11 @@ module axum_top
     typedef enum logic[1:0] {
         Ram,
         Gpio,
-        Timer
+        Timer,
+        Uart
     } bus_device_e;
 
-    localparam int NrDevices = 3;
+    localparam int NrDevices = 4;
     localparam int NrHosts = 1;
 
     // interrupts
@@ -103,6 +105,8 @@ module axum_top
     assign cfg_device_addr_mask[Gpio] = ~32'h3FF; // 1 kB
     assign cfg_device_addr_base[Timer] = 32'h30000;
     assign cfg_device_addr_mask[Timer] = ~32'h3FF; // 1 kB
+    assign cfg_device_addr_base[Uart] = 32'h40000;
+    assign cfg_device_addr_mask[Uart] = ~32'h3FF; // 1 kB
 
     // Instruction fetch signals
     logic instr_req;
@@ -244,6 +248,24 @@ module axum_top
         .timer_intr_o   (timer_irq)
     );
 
+    axum_uart u_uart (
+        .clk_i          (clk_sys),
+        .rst_ni         (rst_sys_n),
+
+        .uart_req_i    (device_req[Uart]),
+        .uart_we_i     (device_we[Uart]),
+        .uart_be_i     (device_be[Uart]),
+        .uart_addr_i   (device_addr[Uart]),
+        .uart_wdata_i  (device_wdata[Uart]),
+        .uart_rvalid_o (device_rvalid[Uart]),
+        .uart_rdata_o  (device_rdata[Uart]),
+        .uart_err_o    (device_err[Uart]),
+        .uart_intr_o   (),
+
+        .rx_i          (gpio_a2),
+        .tx_o          (gpio_a3)
+    );
+
 
     tri [31:0] gpio_inout;
 
@@ -258,8 +280,8 @@ module axum_top
     assign gpio_13 = gpio_inout[8];
     assign gpio_a0 = gpio_inout[9];
     assign gpio_a1 = gpio_inout[10];
-    assign gpio_a2 = gpio_inout[11];
-    assign gpio_a3 = gpio_inout[12];
+    // assign gpio_a2 = gpio_inout[11];
+    // assign gpio_a3 = gpio_inout[12];
     assign gpio_inout[31] = ~usr_btn_i;
     assign rgb_led0_r = ~gpio_inout[14];
     assign rgb_led0_g = ~gpio_inout[15];

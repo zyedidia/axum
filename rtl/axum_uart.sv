@@ -10,15 +10,15 @@ module axum_uart
         output tx_o,
 
         // Bus interface
-        input  logic                    uart_req_i,
-        input  logic [AddressWidth-1:0] uart_addr_i,
-        input  logic                    uart_we_i,
-        input  logic [ DataWidth/8-1:0] uart_be_i,
-        input  logic [   DataWidth-1:0] uart_wdata_i,
-        output logic                    uart_rvalid_o,
-        output logic [   DataWidth-1:0] uart_rdata_o,
-        output logic                    uart_err_o,
-        output logic                    uart_intr_o
+        input  logic        uart_req_i,
+        input  logic [31:0] uart_addr_i,
+        input  logic        uart_we_i,
+        input  logic [3:0]  uart_be_i,
+        input  logic [31:0] uart_wdata_i,
+        output logic        uart_rvalid_o,
+        output logic [31:0] uart_rdata_o,
+        output logic        uart_err_o,
+        output logic        uart_intr_o
     );
 
     localparam int unsigned ADDR_OFFSET = 10;
@@ -32,19 +32,23 @@ module axum_uart
     logic [31:0] rdata_q, rdata_d;
     logic        error_q, error_d;
     logic        rvalid_q;
-    logic        rx_data_we, dvsr_we;
-    logic [31:0] dvsr_q, dvsr_d;
+    logic        tx_data_we, dvsr_we, clear_we;
+    logic [10:0] dvsr_q, dvsr_d;
+    logic        tx_full, rx_empty;
+    logic        ctrl_reg;
+    logic [7:0]  r_data;
 
     assign uart_we = uart_req_i & uart_we_i;
 
-    assign rx_data_we = uart_we & (uart_addr_i[ADDR_OFFSET-1:0] == RX_DATA);
+    assign tx_data_we = uart_we & (uart_addr_i[ADDR_OFFSET-1:0] == TX_DATA);
     assign dvsr_we = uart_we & (uart_addr_i[ADDR_OFFSET-1:0] == DVSR);
+    assign clear_we = uart_we & (uart_addr_i[ADDR_OFFSET-1:0] == CLEAR);
 
     always_ff @(posedge clk_i or negedge rst_ni) begin
         if (~rst_ni) begin
             dvsr_q <= 32'b0;
         end else begin
-            if (dvsr_we) dvsr_q <= dvsr_d;
+            if (dvsr_we) dvsr_q <= uart_wdata_i;
         end
     end
 
@@ -52,9 +56,11 @@ module axum_uart
         rdata_d = 32'b0;
         error_d = 1'b0;
         unique case (uart_addr_i[ADDR_OFFSET-1:0])
+            RX_DATA: rdata_d = {22'h000000, tx_full, rx_empty, r_data};
+            DVSR:    rdata_d = dvsr_q;
+            // write-only registers
             TX_DATA: begin end
-            RX_DATA: begin end
-            DVSR: rdata_d = dvsr_q;
+            CLEAR:   begin end
             default begin
                 rdata_d = 32'b0;
                 error_d = 1'b1;
@@ -84,21 +90,20 @@ module axum_uart
     assign uart_intr_o = 1'b0;
 
     uart #(
-        .DBIT(8),
-        .SB_TICK(16),
-        .FIFO_W(FIFO_DEPTH_BIT)
+        .DBIT    (8),
+        .SB_TICK (16),
+        .FIFO_W  (FIFO_DEPTH_BIT)
     ) u_uart (
         .clk_i,
         .rst_ni,
-        .rd_uart_i  (rd_uart),
-        .wr_uart_i  (wr_uart),
+        .rd_uart_i  (clear_we),
+        .wr_uart_i  (tx_data_we),
+        .rx_i       (rx_i),
         .w_data_i   (uart_wdata_i),
-        .dvsr       (dvsr_q),
+        .dvsr_i     (dvsr_q),
         .tx_full_o  (tx_full),
         .rx_empty_o (rx_empty),
-        .r_data_o   (r_data),
-
-        .rx_i,
-        .tx_o
+        .tx_o       (tx_o),
+        .r_data_o   (r_data)
     );
 endmodule

@@ -38,8 +38,16 @@ SOURCES := ibex/rtl/ibex_alu.sv \
 		   ibex/shared/rtl/bus.sv \
 		   rtl/lib/prim_generic_ram_2p.sv \
 		   rtl/lib/prim_ram_2p.sv \
+		   rtl/lib/fifo.sv \
+		   rtl/lib/fifo_ctrl.sv \
+		   rtl/lib/fifo_reg_file.sv \
+		   rtl/uart/uart_rx.sv \
+		   rtl/uart/uart_tx.sv \
+		   rtl/uart/uart.sv \
+		   rtl/uart/baud_gen.sv \
 		   rtl/axum_gpio.sv \
 		   rtl/axum_timer.sv \
+		   rtl/axum_uart.sv \
 		   rtl/$(TOP).sv
 
 GENV=$(addprefix $(GENDIR)/,$(notdir $(SOURCES:.sv=.v)))
@@ -63,6 +71,9 @@ include boards/$(BOARD)/$(BOARD).mk
 generate: $(GENV)
 
 $(GENDIR)/%.v: rtl/lib/%.sv
+	sv2v $(DEFINE) $(PKG) $(INC) -w $@ $<
+
+$(GENDIR)/%.v: rtl/uart/%.sv
 	sv2v $(DEFINE) $(PKG) $(INC) -w $@ $<
 
 $(GENDIR)/%.v: rtl/%.sv

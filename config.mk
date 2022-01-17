@@ -1,2 +1,2 @@
-MEM ?= mem/riscvtest.vmem
+MEM ?= mem/uart.vmem
 BOARD ?= orangecrab

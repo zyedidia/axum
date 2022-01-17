@@ -18,3 +18,4 @@ obj_dir
 generated
 mem/*.vmem
 !mem/riscvtest.vmem
+todo.txt

@@ -1,4 +1,4 @@
-CONS=boards/icesugar.pcf
+CONS=boards/icesugar/icesugar.pcf
 
 $(TOP).bin: $(TOP).asc
 	icepack $< $@
