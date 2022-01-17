@@ -20,10 +20,10 @@ void reset(Vaxum_top* dut) {
 int main(int argc, char **argv) {
     Verilated::traceEverOn(true);
 
-	// Initialize Verilators variables
+    // Initialize Verilators variables
     Verilated::commandArgs(argc, argv);
 
-	// Create an instance of our module under test
+    // Create an instance of our module under test
     Vaxum_top* dut = new Vaxum_top;
 
     VerilatedVcdC* tfp = new VerilatedVcdC;
