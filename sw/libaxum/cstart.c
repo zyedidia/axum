@@ -1,3 +1,6 @@
+#include <stdlib.h>
+#include "uart.h"
+
 extern int main();
 
 extern int __bss_start__, __bss_end__;
@@ -10,6 +13,8 @@ void _cstart() {
         *bss++ = 0;
     }
 
+    uart_set_baud(115200);
+    init_printf(NULL, uart_putc);
+
     main();
 }
-

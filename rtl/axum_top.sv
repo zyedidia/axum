@@ -25,7 +25,7 @@ module axum_top
         output logic rgb_led0_b
     );
 
-    parameter int          MEM_SIZE     = 8 * 1024; // 8 kB
+    parameter int          MEM_SIZE     = 16 * 1024; // 16 kB
     parameter logic [31:0] MEM_START    = 32'h00000000;
     parameter logic [31:0] MEM_MASK     = MEM_SIZE-1;
     parameter              SRAMInitFile = "";

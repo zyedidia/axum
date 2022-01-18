@@ -20,7 +20,7 @@ _start:
 	csrwi mstatus, (1 << 3)
 
 	li t0, 0
-	la sp, 0x102080
+	la sp, 0x104000
 	call _cstart
 _halt:
 	j _halt

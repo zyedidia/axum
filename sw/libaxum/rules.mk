@@ -18,8 +18,7 @@ ASFLAGS=-march=$(ARCH) -mabi=ilp32
 LDFLAGS=-T $(LIBAXUM_ROOT)/memmap.ld -L$(RV_ROOT)/$(PREFIX)/lib/$(ARCH)/ilp32 -L$(RV_ROOT)/lib/gcc/$(PREFIX)/11.1.0/$(ARCH)/ilp32 -melf32lriscv
 LDLIBS=-lgcc
 
-# LIBCSRC=$(wildcard $(LIBAXUM_ROOT)/*.c) $(wildcard $(LIBAXUM_ROOT)/libc/*.c)
-LIBCSRC=$(wildcard $(LIBAXUM_ROOT)/*.c)
+LIBCSRC=$(wildcard $(LIBAXUM_ROOT)/*.c) $(wildcard $(LIBAXUM_ROOT)/libc/*.c)
 LIBSSRC=$(wildcard $(LIBAXUM_ROOT)/*.s)
 LIBOBJ=$(LIBCSRC:.c=.o) $(LIBSSRC:.s=.o)
 

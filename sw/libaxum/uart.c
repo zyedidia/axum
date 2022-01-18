@@ -3,6 +3,8 @@
 #include "bits.h"
 #include "mem.h"
 
+#include "libc/tinyprintf.h"
+
 typedef struct {
     unsigned tx_data;
     unsigned rx_data;
@@ -44,6 +46,7 @@ int uart_rx() {
     return (int) data;
 }
 
-/* void uart_putc(void* p, char c) { */
-/*  */
-/* } */
+void uart_putc(void* p, char c) {
+    (void) p; // ignore
+    uart_tx(c);
+}
