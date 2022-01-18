@@ -1,6 +1,6 @@
 module axum_uart
     #(
-        parameter FIFO_DEPTH_BIT = 8 // # addr bits of FIFO
+        parameter FIFO_DEPTH_BIT = 4 // # addr bits of FIFO
     )
     (
         input logic clk_i,

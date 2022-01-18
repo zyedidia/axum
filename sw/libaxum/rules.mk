@@ -9,7 +9,7 @@ OBJCOPY=$(PREFIX)-objcopy
 OBJDUMP=$(PREFIX)-objdump
 
 INCLUDE=-I$(LIBAXUM_ROOT)
-ARCH=rv32i
+ARCH=rv32imac
 
 O ?= s
 
