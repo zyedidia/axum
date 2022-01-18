@@ -1,5 +1,7 @@
 #include "libaxum.h"
 
+void timer_interrupt() {}
+
 int main() {
     const int led = GPIO_0;
     const int btn = GPIO_BTN;
