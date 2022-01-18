@@ -15,7 +15,7 @@ obj_dir
 *.list
 *.out
 *.hex
-generated
+generated/*.v
 mem/*.vmem
 !mem/riscvtest.vmem
 todo.txt
