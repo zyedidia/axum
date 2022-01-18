@@ -1,2 +1,2 @@
-MEM ?= mem/uart.vmem
+MEM ?= mem/blink.vmem
 BOARD ?= orangecrab
