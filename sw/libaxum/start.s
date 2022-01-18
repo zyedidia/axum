@@ -48,7 +48,9 @@ _timer_intr_handler:
 	lw x1, 8(t0)
 	sw x1, 8(t0) # rewrite mtimecmp to clear irq
 
-	call timer_interrupt
+	la t0, _timer_irq_handler
+	lw t1, 0(t0)
+	jalr ra, t1
 
 	lw x1, 0(x31)
 	lw x5, 4(x31)

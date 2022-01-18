@@ -1,7 +1,5 @@
 #include "libaxum.h"
 
-void timer_interrupt() {}
-
 int main() {
     int i = 0;
     while (1) {

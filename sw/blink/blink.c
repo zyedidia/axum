@@ -1,10 +1,12 @@
 #include "libaxum.h"
 
-void timer_interrupt() {
+void irq_handler() {
     gpio_write(GPIO_LED_R, gpio_read(GPIO_BTN));
 }
 
 int main() {
+    set_timer_irq_handler(irq_handler);
+
     const int pin = GPIO_0;
     gpio_set_output(pin);
 
