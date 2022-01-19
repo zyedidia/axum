@@ -1,4 +1,8 @@
+# mmio timer base address
 .equ timer_base, 0x30000
+# mmio timer register offsets
+.equ mtime, 0
+.equ mtimecmp, 8
 
 .section ".text.boot"
 
@@ -12,7 +16,7 @@ _start:
 	# at 32MHz this is every 2ms
 	la t0, timer_base
 	li t1, 0xffff
-	sw t1, 8(t0)
+	sw t1, mtimecmp(t0)
 
 	# enable interrupts
 	li t0, (1 << 7) | (1 << 11)
@@ -44,9 +48,9 @@ _timer_intr_handler:
 	sw x30, 56(x31)
 
 	la t0, timer_base
-	sw x0, 0(t0) # clear mtime
-	lw x1, 8(t0)
-	sw x1, 8(t0) # rewrite mtimecmp to clear irq
+	sw x0, mtime(t0) # clear mtime
+	lw x1, mtimecmp(t0)
+	sw x1, mtimecmp(t0) # rewrite mtimecmp to clear irq
 
 	la t0, _timer_irq_handler
 	lw t1, 0(t0)
