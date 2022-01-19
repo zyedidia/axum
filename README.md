@@ -15,9 +15,17 @@ UART.
 
 # Building
 
+Make sure to initialize the Ibex submodule:
+
+```
+git submodule update --init
+```
+
 ## Software
 
-To build the software, you must have a RISC-V GNU toolchain installed.
+To build the software, you must have a RISC-V GNU toolchain installed. You must
+also set the environment variable `LIBAXUM_ROOT` to point to the `sw/libaxum`
+directory.
 
 Navigate to the program you want to build in the `sw` directory and run
 `make install`. This will place the generated bin file in `mem/` at the
