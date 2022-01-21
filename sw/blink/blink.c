@@ -7,7 +7,7 @@ void irq_handler() {
 int main() {
     set_timer_irq_handler(irq_handler);
 
-    const int pin = GPIO_0;
+    const int pin = GPIO_LED_B;
     gpio_set_output(pin);
 
     gpio_set_output(GPIO_LED_R);
