@@ -52,3 +52,20 @@ make cxxrtl    # outputs CXXRTL simulation to sim/sim.out
 make           # outputs bitstream file for selected board
 make prog      # sends bitstream to FPGA (must be plugged in)
 ```
+
+# Loading software
+
+Once you compile a program to a RISC-V binary file, there are two ways of
+loading it onto the FPGA. The first is to convert the binary file to a Verilog
+memory file and place it in the `mem/` directory. Then specify the file in
+`config.mk` or with `MEM=mem/file.vmem` when building the gateware. This will
+build the program directly into the SRAM that is synthesized so that it will be
+loaded immediately at start-up. However, this requires re-synthesizing the
+design and loading new gateware even if you only change the software.
+
+The other option is to use the software bootloader that is included with Axum.
+First, synthesize the gateware with the memory file `mem/bootloader.vmem`.
+Once this is uploaded to the FPGA, plug it in via a USB-UART connector. You can
+then invoke the `axprog` program from `tools/` to send a program over UART. The
+bootloader running at start-up will be waiting for a program to be sent, and
+copy it into the SRAM and jump to it once the transfer is complete.
