@@ -19,3 +19,4 @@ generated/*.v
 mem/*.vmem
 !mem/riscvtest.vmem
 todo.txt
+/tools/axprog/axprog

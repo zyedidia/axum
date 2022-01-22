@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"strings"
 
 	"github.com/jacobsa/go-serial/serial"
 )
@@ -42,8 +43,6 @@ var autodetect = []string{
 }
 
 var baud = flag.Uint("baud", 115200, "baud rate")
-var hex = flag.String("hex", "", "ihex file to install")
-var bin = flag.String("bin", "", "bin file to install")
 
 func PutUint(port io.Writer, val uint32) {
 	err := binary.Write(port, binary.LittleEndian, val)
@@ -64,7 +63,7 @@ func GetUint(port io.Reader) uint32 {
 func CheckUint(port io.Reader, val uint32) {
 	u := GetUint(port)
 	if u != val {
-		log.Fatalf("check mismatch: expected %v, got %v", val, u)
+		log.Fatalf("check mismatch: expected %x, got %x", val, u)
 	}
 }
 
@@ -72,19 +71,35 @@ func main() {
 	flag.Parse()
 	args := flag.Args()
 
-	hexdat, err := ioutil.ReadFile(*hex)
+	if len(args) <= 0 {
+		log.Fatal("no install file provided")
+	}
+
+	binfile := args[0]
+	args = args[1:]
+
+	data, err := ioutil.ReadFile(binfile)
 	if err != nil {
 		log.Fatal(err)
 	}
-	ihex := &BinaryLoader{
-		Entry: BaseAddr,
+	var l Loader
+
+	if strings.HasSuffix(binfile, ".ihex") || strings.HasSuffix(binfile, ".hex") {
+		l = &IntelHexLoader{
+			Entry: BaseAddr,
+		}
+	} else {
+		l = &BinaryLoader{
+			Entry: BaseAddr,
+		}
 	}
-	segs, _, err := ihex.Load(hexdat)
+
+	segs, _, err := l.Load(data)
 	if err != nil {
 		log.Fatal(err)
 	}
 	if len(segs) != 1 {
-		log.Fatal("Must have exactly one segment!")
+		log.Fatal("must have exactly one segment!")
 	}
 	bin := segs[0].data
 	crcbin := crc32(bin)
@@ -143,9 +158,9 @@ func main() {
 
 	result := GetUint(port)
 	if result == BootError {
-		log.Fatal("Bootloader error code:", result)
+		log.Fatal("bootloader error code:", result)
 	}
-	fmt.Println("Data loaded successfully")
+	fmt.Println("Program loaded")
 
 	buf := make([]byte, 1024)
 	for {
