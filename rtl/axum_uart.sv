@@ -33,9 +33,8 @@ module axum_uart
     logic        error_q, error_d;
     logic        rvalid_q;
     logic        tx_data_we, dvsr_we, clear_we;
-    logic [10:0] dvsr_q, dvsr_d;
+    logic [10:0] dvsr_q;
     logic        tx_full, rx_empty;
-    logic        ctrl_reg;
     logic [7:0]  r_data;
 
     assign uart_we = uart_req_i & uart_we_i;
