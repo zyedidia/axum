@@ -41,8 +41,8 @@ module axum_reg_file import ibex_pkg::*;
     logic                        rf_we_wb_w [NR_REG_CTX];
     logic [RegFileDataWidth-1:0] rf_rdata_a_ecc_w [NR_REG_CTX];
     logic [RegFileDataWidth-1:0] rf_rdata_b_ecc_w [NR_REG_CTX];
+    logic [RegFileDataWidth-1:0] rf_rdata_c_ecc_w [NR_REG_CTX];
 
-    logic [4:0]                  rf_raddr_a_w [NR_REG_CTX];
     logic [4:0]                  rf_waddr_w [NR_REG_CTX];
     logic [RegFileDataWidth-1:0] rf_wdata_w [NR_REG_CTX];
 
@@ -50,75 +50,34 @@ module axum_reg_file import ibex_pkg::*;
 
     assign rf_rdata_a_ecc_o = rf_rdata_a_ecc_w[rf_ctx_sel_i];
     assign rf_rdata_b_ecc_o = rf_rdata_b_ecc_w[rf_ctx_sel_i];
-    assign rdata_d = rf_rdata_a_ecc_w[rf_ctx_sel_i];
+    assign rdata_d = rf_map_addr_i[8:7] != rf_ctx_sel_i ? rf_rdata_c_ecc_w[rf_map_addr_i[8:7]] : 32'b0;
 
     for (genvar r = 0; r < NR_REG_CTX; r++) begin : gen_regfile_ctxts
         assign rf_we_wb_w[r] = rf_ctx_sel_i == r ? rf_we_wb_i : rf_map_we;
-        // assign rf_raddr_a_w[r] = rf_ctx_sel_i == r ? rf_raddr_a_i : rf_map_addr_i[ADDR_OFFSET-1:2];
-        assign rf_waddr_w[r] = rf_ctx_sel_i == r ? rf_waddr_wb_i : rf_map_addr_i[ADDR_OFFSET-1:2];
+        assign rf_waddr_w[r] = rf_ctx_sel_i == r ? rf_waddr_wb_i : rf_map_addr_i[6:2];
         assign rf_wdata_w[r] = rf_ctx_sel_i == r ? rf_wdata_wb_ecc_i : rf_map_wdata_i;
 
-        if (RegFile == RegFileFF) begin : gen_regfile_ff
-            ibex_register_file_ff #(
-                .RV32E            (RV32E),
-                .DataWidth        (RegFileDataWidth),
-                .WordZeroVal      (RegFileDataWidth'(prim_secded_pkg::SecdedInv3932ZeroWord))
-            ) register_file_i (
-                .clk_i (clk_i),
-                .rst_ni(rst_ni),
+        ibex_register_file_fpga #(
+            .RV32E            (RV32E),
+            .DataWidth        (RegFileDataWidth),
+            .WordZeroVal      (RegFileDataWidth'(prim_secded_pkg::SecdedInv3932ZeroWord))
+        ) register_file_i (
+            .clk_i (clk_i),
+            .rst_ni(rst_ni),
 
-                .dummy_instr_id_i(),
-                .test_en_i(1'b0),
+            .dummy_instr_id_i(),
+            .test_en_i(1'b0),
 
-                .raddr_a_i(rf_raddr_a_w[r]),
-                .rdata_a_o(rf_rdata_a_ecc_w[r]),
-                .raddr_b_i(rf_raddr_b_i),
-                .rdata_b_o(rf_rdata_b_ecc_w[r]),
-                .waddr_a_i(rf_waddr_w[r]),
-                .wdata_a_i(rf_wdata_w[r]),
-                .we_a_i   (rf_we_wb_w[r])
-            );
-        end else if (RegFile == RegFileFPGA) begin : gen_regfile_fpga
-            ibex_register_file_fpga #(
-                .RV32E            (RV32E),
-                .DataWidth        (RegFileDataWidth),
-                .WordZeroVal      (RegFileDataWidth'(prim_secded_pkg::SecdedInv3932ZeroWord))
-            ) register_file_i (
-                .clk_i (clk_i),
-                .rst_ni(rst_ni),
-
-                .dummy_instr_id_i(),
-                .test_en_i(1'b0),
-
-                .raddr_a_i(rf_raddr_a_w[r]),
-                .rdata_a_o(rf_rdata_a_ecc_w[r]),
-                .raddr_b_i(rf_raddr_b_i),
-                .rdata_b_o(rf_rdata_b_ecc_w[r]),
-                .waddr_a_i(rf_waddr_w[r]),
-                .wdata_a_i(rf_wdata_w[r]),
-                .we_a_i   (rf_we_wb_w[r])
-            );
-        end else if (RegFile == RegFileLatch) begin : gen_regfile_latch
-            ibex_register_file_latch #(
-                .RV32E            (RV32E),
-                .DataWidth        (RegFileDataWidth),
-                .WordZeroVal      (RegFileDataWidth'(prim_secded_pkg::SecdedInv3932ZeroWord))
-            ) register_file_i (
-                .clk_i (clk_i),
-                .rst_ni(rst_ni),
-
-                .dummy_instr_id_i(),
-                .test_en_i(1'b0),
-
-                .raddr_a_i(rf_raddr_a_w[r]),
-                .rdata_a_o(rf_rdata_a_ecc_w[r]),
-                .raddr_b_i(rf_raddr_b_i),
-                .rdata_b_o(rf_rdata_b_ecc_w[r]),
-                .waddr_a_i(rf_waddr_w[r]),
-                .wdata_a_i(rf_wdata_w[r]),
-                .we_a_i   (rf_we_wb_w[r])
-            );
-        end
+            .raddr_a_i(rf_raddr_a_i),
+            .rdata_a_o(rf_rdata_a_ecc_w[r]),
+            .raddr_b_i(rf_raddr_b_i),
+            .rdata_b_o(rf_rdata_b_ecc_w[r]),
+            .raddr_c_i(rf_map_addr_i[6:2]),
+            .rdata_c_o(rf_rdata_c_ecc_w[r]),
+            .waddr_a_i(rf_waddr_w[r]),
+            .wdata_a_i(rf_wdata_w[r]),
+            .we_a_i   (rf_we_wb_w[r])
+        );
     end
 
     assign error_d = 1'b0;
