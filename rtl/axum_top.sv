@@ -62,14 +62,15 @@ module axum_top
         CoreD
     } bus_host_e;
 
-    typedef enum logic[1:0] {
+    typedef enum logic[2:0] {
         Ram,
         Gpio,
         Timer,
-        Uart
+        Uart,
+        RegFile
     } bus_device_e;
 
-    localparam int NrDevices = 4;
+    localparam int NrDevices = 5;
     localparam int NrHosts = 1;
 
     // interrupts
@@ -107,6 +108,8 @@ module axum_top
     assign cfg_device_addr_mask[Timer] = ~32'h3FF; // 1 kB
     assign cfg_device_addr_base[Uart] = 32'h40000;
     assign cfg_device_addr_mask[Uart] = ~32'h3FF; // 1 kB
+    assign cfg_device_addr_base[RegFile] = 32'h10000;
+    assign cfg_device_addr_mask[RegFile] = ~32'h3FF; // 1 kB
 
     // Instruction fetch signals
     logic instr_req;
@@ -154,8 +157,19 @@ module axum_top
         .cfg_device_addr_mask
     );
 
+    localparam RegFileDataWidth = 32;
+
+    logic [4:0]                  rf_raddr_a;
+    logic [4:0]                  rf_raddr_b;
+    logic [4:0]                  rf_waddr_wb;
+    logic                        rf_we_wb;
+    logic [RegFileDataWidth-1:0] rf_wdata_wb_ecc;
+    logic [RegFileDataWidth-1:0] rf_rdata_a_ecc;
+    logic [RegFileDataWidth-1:0] rf_rdata_b_ecc;
+
+    ibex_pkg::reg_ctx_e rf_ctx_sel;
+
     ibex_top #(
-        .RegFile(ibex_pkg::RegFileFPGA),
         .DmHaltAddr      ( 32'h00100000    ),
         .DmExceptionAddr ( 32'h00100000    )
     ) u_top (
@@ -190,6 +204,16 @@ module axum_top
         .data_rdata_intg_i     ('0),
         .data_err_i            (host_err[CoreD]),
 
+        // Register file interface
+        .rf_raddr_a_o           (rf_raddr_a),
+        .rf_raddr_b_o           (rf_raddr_b),
+        .rf_waddr_wb_o          (rf_waddr_wb),
+        .rf_we_wb_o             (rf_we_wb),
+        .rf_wdata_wb_ecc_o      (rf_wdata_wb_ecc),
+        .rf_rdata_a_ecc_i       (rf_rdata_a_ecc),
+        .rf_rdata_b_ecc_i       (rf_rdata_b_ecc),
+        .rf_ctx_sel_o           (rf_ctx_sel),
+
         .irq_software_i        (1'b0),
         .irq_timer_i           (timer_irq),
         .irq_external_i        (1'b0),
@@ -203,6 +227,33 @@ module axum_top
         .alert_minor_o         (),
         .alert_major_o         (),
         .core_sleep_o          ()
+    );
+
+    axum_reg_file #(
+        .RegFile          (ibex_pkg::RegFileFPGA),
+        .RegFileDataWidth (RegFileDataWidth)
+    ) u_reg_file_ctx (
+        .clk_i                (clk_sys),
+        .rst_ni               (rst_sys_n),
+
+        .rf_map_req_i         (device_req[RegFile]),
+        .rf_map_we_i          (device_we[RegFile]),
+        .rf_map_be_i          (device_be[RegFile]),
+        .rf_map_addr_i        (device_addr[RegFile]),
+        .rf_map_wdata_i       (device_wdata[RegFile]),
+        .rf_map_rvalid_o      (device_rvalid[RegFile]),
+        .rf_map_rdata_o       (device_rdata[RegFile]),
+        .rf_map_err_o         (device_err[RegFile]),
+        .rf_map_intr_o        (),
+
+        .rf_raddr_a_i         (rf_raddr_a),
+        .rf_raddr_b_i         (rf_raddr_b),
+        .rf_waddr_wb_i        (rf_waddr_wb),
+        .rf_we_wb_i           (rf_we_wb),
+        .rf_wdata_wb_ecc_i    (rf_wdata_wb_ecc),
+        .rf_rdata_a_ecc_o     (rf_rdata_a_ecc),
+        .rf_rdata_b_ecc_o     (rf_rdata_b_ecc),
+        .rf_ctx_sel_i         (rf_ctx_sel)
     );
 
     // SRAM block for instruction and data storage

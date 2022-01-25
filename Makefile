@@ -25,14 +25,12 @@ SOURCES := ibex/rtl/ibex_alu.sv \
 		   ibex/rtl/ibex_id_stage.sv \
 		   ibex/rtl/ibex_if_stage.sv \
 		   ibex/rtl/ibex_load_store_unit.sv \
-		   ibex/rtl/ibex_lockstep.sv \
 		   ibex/rtl/ibex_multdiv_fast.sv \
 		   ibex/rtl/ibex_multdiv_slow.sv \
 		   ibex/rtl/ibex_pmp.sv \
 		   ibex/rtl/ibex_prefetch_buffer.sv \
 		   ibex/rtl/ibex_register_file_fpga.sv \
 		   ibex/rtl/ibex_top.sv \
-		   ibex/rtl/ibex_top_tracing.sv \
 		   ibex/rtl/ibex_wb_stage.sv \
 		   ibex/shared/rtl/ram_2p.sv \
 		   ibex/shared/rtl/bus.sv \
@@ -48,7 +46,11 @@ SOURCES := ibex/rtl/ibex_alu.sv \
 		   rtl/axum_gpio.sv \
 		   rtl/axum_timer.sv \
 		   rtl/axum_uart.sv \
+		   rtl/axum_reg_file.sv \
 		   rtl/$(TOP).sv
+
+# ibex/rtl/ibex_lockstep.sv
+# ibex/rtl/ibex_top_tracing.sv
 
 GENV=$(addprefix $(GENDIR)/,$(notdir $(SOURCES:.sv=.v)))
 SYNTH=$(GENV) rtl/lib/clkgen.v rtl/lib/prim_clock_gating.v
