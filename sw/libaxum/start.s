@@ -4,7 +4,7 @@
 .equ mtime, 0
 .equ mtimecmp, 8
 
-.equ trap_sp 0x104000
+.equ trap_sp, 0x104000
 
 .section ".text.boot"
 
