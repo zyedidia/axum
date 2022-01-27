@@ -4,14 +4,12 @@
 .equ mtime, 0
 .equ mtimecmp, 8
 
+.equ trap_sp 0x104000
+
 .section ".text.boot"
 
 .globl _start
 _start:
-	# load scratch space address into mscratch
-	la t0, _mscratch
-	csrw mscratch, t0
-
 	# timer interrupt every 65536 cycles
 	# at 32MHz this is every 2ms
 	la t0, timer_base
@@ -24,12 +22,13 @@ _start:
 	csrwi mstatus, (1 << 3)
 
 	li t0, 0
-	la sp, 0x104000
+	la sp, 0x103000
 	call _cstart
 _halt:
 	j _halt
 
 _timer_intr_handler:
+	la sp, trap_sp
 	la t0, timer_base
 	sw x0, mtime(t0) # clear mtime
 	lw x1, mtimecmp(t0)
@@ -40,13 +39,20 @@ _timer_intr_handler:
 	jalr ra, t1
 	mret
 
+_exception_handler:
+	la sp, trap_sp
+	la t0, _exception_handler
+	lw t1, 0(t0)
+	csrr a0, mcause
+	jalr ra, t1
+	mret
 
 .section .vectors, "ax"
 .option norvc
 
 	# general exception handler
 	.org 0x0
-	j _halt
+	j _exception_handler
 	
 	# timer interrupt handler
 	.org 0x1c
@@ -55,6 +61,3 @@ _timer_intr_handler:
 	# reset handler
 	.org 0x80
 	j _start
-
-.data
-_mscratch: .space 60
