@@ -44,5 +44,7 @@ typedef struct {
     uint32_t x31;
 } regs_t;
 
-volatile regs_t* rf_ctx(rf_ctx_t ctx);
-uint32_t get_reg(volatile regs_t* regs, unsigned reg);
+typedef volatile regs_t* regs_p;
+
+regs_p rf_ctx(rf_ctx_t ctx);
+uint32_t get_reg(regs_p regs, unsigned reg);
