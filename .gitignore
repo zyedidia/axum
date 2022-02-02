@@ -15,6 +15,7 @@ obj_dir
 *.list
 *.out
 *.hex
+.deps
 generated/*.v
 mem/*.vmem
 !mem/riscvtest.vmem

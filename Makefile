@@ -62,6 +62,10 @@ PKG := ./ibex/rtl/*_pkg.sv \
 	   ./ibex/vendor/lowrisc_ip/ip/prim/rtl/prim_ram_2p_pkg.sv \
 	   ./ibex/vendor/lowrisc_ip/ip/prim/rtl/prim_secded_pkg.sv
 
+include boards/$(BOARD)/all.mk
+
+include deps.mk
+
 # Synthesis rules
 
 include boards/$(BOARD)/$(BOARD).mk
@@ -89,7 +93,7 @@ $(GENDIR)/%.v: ibex/rtl/%.sv
 
 ## CXXRTL
 
-$(CXXRTL): $(SYNTH)
+$(CXXRTL): $(SYNTH) $(BUILDSTAMP)
 	yosys -p 'read_verilog -defer -noautowire -sv $(SYNTH); chparam -set SRAMInitFile "$(MEM)" $(TOP); hierarchy -top $(TOP); write_cxxrtl -nohierarchy -O6 -g0 $(CXXRTL)'
 
 $(SIM_BIN): $(CXXRTL) $(TB)
@@ -99,7 +103,7 @@ cxxrtl: $(SIM_BIN)
 
 ## Verilator
 
-obj_dir/$(SIM_BIN).vtor: $(VERILATOR_SIM) $(SOURCES)
+obj_dir/$(SIM_BIN).vtor: $(VERILATOR_SIM) $(SOURCES) $(BUILDSTAMP)
 	verilator -sv -cc $(DEFINE) $(PKG) $(INC) $(SOURCES) -Wno-WIDTH -Wno-LITENDIAN --top $(TOP) -GSRAMInitFile='"$(MEM)"' --trace --exe --build $< -o $(notdir $@)
 
 verilator: obj_dir/$(SIM_BIN).vtor
