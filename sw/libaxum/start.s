@@ -29,7 +29,6 @@ _halt:
 	j _halt
 
 _timer_irq_handler_entry:
-	la sp, trap_sp
 	la t0, timer_base
 	sw x0, mtime(t0) # clear mtime
 	lw x1, mtimecmp(t0)
@@ -41,7 +40,6 @@ _timer_irq_handler_entry:
 	mret
 
 _exception_handler_entry:
-	la sp, trap_sp
 	la t0, _exception_handler
 	lw t1, 0(t0)
 	csrr a0, mcause
