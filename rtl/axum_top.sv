@@ -26,7 +26,6 @@ module axum_top
     );
 
     parameter int          MEM_SIZE     = 16 * 1024; // 16 kB
-    parameter logic [31:0] MEM_START    = 32'h00000000;
     parameter logic [31:0] MEM_MASK     = MEM_SIZE-1;
     parameter              SRAMInitFile = "";
     parameter bit          ECP5PLL      = 1'b0;
@@ -166,6 +165,7 @@ module axum_top
     logic [RegFileDataWidth-1:0] rf_wdata_wb_ecc;
     logic [RegFileDataWidth-1:0] rf_rdata_a_ecc;
     logic [RegFileDataWidth-1:0] rf_rdata_b_ecc;
+    logic [RegFileDataWidth-1:0] rf_sp;
 
     ibex_pkg::reg_ctx_e rf_ctx_sel;
 
@@ -212,6 +212,7 @@ module axum_top
         .rf_wdata_wb_ecc_o      (rf_wdata_wb_ecc),
         .rf_rdata_a_ecc_i       (rf_rdata_a_ecc),
         .rf_rdata_b_ecc_i       (rf_rdata_b_ecc),
+        .rf_sp_i                (rf_sp),
         .rf_ctx_sel_o           (rf_ctx_sel),
 
         .irq_software_i        (1'b0),
@@ -253,7 +254,8 @@ module axum_top
         .rf_wdata_wb_ecc_i    (rf_wdata_wb_ecc),
         .rf_rdata_a_ecc_o     (rf_rdata_a_ecc),
         .rf_rdata_b_ecc_o     (rf_rdata_b_ecc),
-        .rf_ctx_sel_i         (rf_ctx_sel)
+        .rf_ctx_sel_i         (rf_ctx_sel),
+        .rf_sp_o              (rf_sp)
     );
 
     // SRAM block for instruction and data storage

@@ -18,9 +18,9 @@ void _cstart() {
     init_printf(NULL, uart_putc);
 
     uint32_t trap_sp = 0x104000;
-    rf_ctx(RF_CTX_EXC)->x1 = trap_sp;
-    rf_ctx(RF_CTX_IRQ)->x1 = trap_sp;
-    rf_ctx(RF_CTX_ECALL)->x1 = trap_sp;
+    rf_ctx(RF_CTX_EXC)->x2 = trap_sp;
+    rf_ctx(RF_CTX_IRQ)->x2 = trap_sp;
+    rf_ctx(RF_CTX_ECALL)->x2 = trap_sp;
 
     main();
 }

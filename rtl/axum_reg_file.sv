@@ -27,8 +27,9 @@ module axum_reg_file import ibex_pkg::*;
         input logic [4:0]                    rf_waddr_wb_i,
         input logic                          rf_we_wb_i,
         input logic [RegFileDataWidth-1:0]   rf_wdata_wb_ecc_i,
-        output  logic [RegFileDataWidth-1:0] rf_rdata_a_ecc_o,
-        output  logic [RegFileDataWidth-1:0] rf_rdata_b_ecc_o,
+        output logic [RegFileDataWidth-1:0] rf_rdata_a_ecc_o,
+        output logic [RegFileDataWidth-1:0] rf_rdata_b_ecc_o,
+        output logic [RegFileDataWidth-1:0] rf_sp_o,
         input reg_ctx_e                      rf_ctx_sel_i
     );
 
@@ -42,14 +43,17 @@ module axum_reg_file import ibex_pkg::*;
     logic [RegFileDataWidth-1:0] rf_rdata_a_ecc_w [NR_REG_CTX];
     logic [RegFileDataWidth-1:0] rf_rdata_b_ecc_w [NR_REG_CTX];
     logic [RegFileDataWidth-1:0] rf_rdata_c_ecc_w [NR_REG_CTX];
+    logic [RegFileDataWidth-1:0] rf_sp_w [NR_REG_CTX];
 
     logic [4:0]                  rf_waddr_w [NR_REG_CTX];
     logic [RegFileDataWidth-1:0] rf_wdata_w [NR_REG_CTX];
 
-    logic rf_map_we = rf_map_req_i & rf_map_we_i;
+    logic rf_map_we;
+    assign rf_map_we = rf_map_req_i & rf_map_we_i;
 
     assign rf_rdata_a_ecc_o = rf_rdata_a_ecc_w[rf_ctx_sel_i];
     assign rf_rdata_b_ecc_o = rf_rdata_b_ecc_w[rf_ctx_sel_i];
+    assign rf_sp_o = rf_sp_w[rf_ctx_sel_i];
     assign rdata_d = rf_map_addr_i[8:7] != rf_ctx_sel_i ? rf_rdata_c_ecc_w[rf_map_addr_i[8:7]] : 32'b0;
 
     for (genvar r = 0; r < NR_REG_CTX; r++) begin : gen_regfile_ctxts
@@ -76,7 +80,8 @@ module axum_reg_file import ibex_pkg::*;
             .rdata_c_o(rf_rdata_c_ecc_w[r]),
             .waddr_a_i(rf_waddr_w[r]),
             .wdata_a_i(rf_wdata_w[r]),
-            .we_a_i   (rf_we_wb_w[r])
+            .we_a_i   (rf_we_wb_w[r]),
+            .sp_o     (rf_sp_w[r])
         );
     end
 
