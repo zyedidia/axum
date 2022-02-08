@@ -28,26 +28,6 @@ _start:
 _halt:
 	j _halt
 
-_timer_irq_handler_entry:
-	addi sp, sp, -4
-	la t0, timer_base
-	sw x0, mtime(t0) # clear mtime
-	lw x1, mtimecmp(t0)
-	sw x1, mtimecmp(t0) # rewrite mtimecmp to clear irq
-
-	la t0, _timer_irq_handler
-	lw t1, 0(t0)
-	jalr ra, t1
-	addi sp, sp, 4
-	ret
-
-_exception_handler_entry:
-	la t0, _exception_handler
-	lw t1, 0(t0)
-	csrr a0, mcause
-	jalr ra, t1
-	j _halt
-
 .section .vectors, "ax"
 .option norvc
 
