@@ -165,7 +165,7 @@ module axum_top
     logic [RegFileDataWidth-1:0] rf_wdata_wb_ecc;
     logic [RegFileDataWidth-1:0] rf_rdata_a_ecc;
     logic [RegFileDataWidth-1:0] rf_rdata_b_ecc;
-    logic [RegFileDataWidth-1:0] rf_sp;
+    logic [RegFileDataWidth-1:0] rf_ra;
 
     ibex_pkg::reg_ctx_e rf_ctx_sel;
 
@@ -212,7 +212,7 @@ module axum_top
         .rf_wdata_wb_ecc_o      (rf_wdata_wb_ecc),
         .rf_rdata_a_ecc_i       (rf_rdata_a_ecc),
         .rf_rdata_b_ecc_i       (rf_rdata_b_ecc),
-        .rf_sp_i                (rf_sp),
+        .rf_ra_i                (rf_ra),
         .rf_ctx_sel_o           (rf_ctx_sel),
 
         .irq_software_i        (1'b0),
@@ -255,7 +255,7 @@ module axum_top
         .rf_rdata_a_ecc_o     (rf_rdata_a_ecc),
         .rf_rdata_b_ecc_o     (rf_rdata_b_ecc),
         .rf_ctx_sel_i         (rf_ctx_sel),
-        .rf_sp_o              (rf_sp)
+        .rf_ra_o              (rf_ra)
     );
 
     // SRAM block for instruction and data storage
