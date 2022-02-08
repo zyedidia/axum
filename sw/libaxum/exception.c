@@ -1,5 +1,16 @@
 #include "exception.h"
 #include "timer.h"
+#include "riscv_csr.h"
+
+void trap_init() {
+    // timer interrupt every 1ms
+    timer_init_irq(1000);
+
+    // enable timer interrupts and external interrupts
+    write_csr(mie, (1 << 7) | (1 << 11));
+    // enable interrupts
+    write_csr(mstatus, (1 << 3));
+}
 
 void _empty_exception(unsigned mcause) { (void) mcause; while (1) {} }
 void _empty_timer_irq() { }
@@ -16,20 +27,11 @@ void set_exception_handler(void (*handler)(unsigned)) {
 }
 
 void _timer_irq_handler_entry() {
-    clear_timer_irq();
+    timer_clear_irq();
 
     _timer_irq_handler();
 }
 
 void _exception_handler_entry() {
-    unsigned mcause;
-
-    asm volatile (
-        "csrr %[dest], mcause"
-        :[dest]    "=r" (mcause)
-        : /* no inputs */
-        : "memory"
-        );
-
-    _exception_handler(mcause);
+    _exception_handler(read_csr(mcause));
 }

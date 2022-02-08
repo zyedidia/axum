@@ -33,7 +33,12 @@ static inline void delay_ms(unsigned ms) {
     delay_us(1000 * ms);
 }
 
-static inline void clear_timer_irq() {
+static inline void timer_clear_irq() {
     _timer->mtime = 0;
     _timer->mtimecmp = _timer->mtimecmp;
+}
+
+static inline void timer_init_irq(uint64_t irq_freq_us) {
+    _timer->mtimecmp = CLK_FREQ_MHZ * irq_freq_us;
+    _timer->mtime = 0;
 }

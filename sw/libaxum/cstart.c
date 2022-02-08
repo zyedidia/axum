@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include "rf.h"
 #include "uart.h"
+#include "exception.h"
 
 extern int main();
 
@@ -21,6 +22,8 @@ void _cstart() {
     rf_ctx(RF_CTX_EXC)->x2 = trap_sp;
     rf_ctx(RF_CTX_IRQ)->x2 = trap_sp;
     rf_ctx(RF_CTX_ECALL)->x2 = trap_sp;
+
+    trap_init();
 
     main();
 }
