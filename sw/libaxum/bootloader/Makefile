@@ -9,13 +9,13 @@ OBJCOPY=$(PREFIX)-objcopy
 OBJDUMP=$(PREFIX)-objdump
 
 INCLUDE=-I$(LIBAXUM_ROOT)
-ARCH=rv32imac
+ARCH=rv32imc
 
 O ?= s
 
 CFLAGS=-O$(O) $(INCLUDE) -g -Wall -Wno-unused-function -nostdlib -nostartfiles -ffreestanding -march=$(ARCH) -mabi=ilp32 -std=gnu99 -mcmodel=medany
 ASFLAGS=-march=$(ARCH) -mabi=ilp32
-LDFLAGS=-T $(LIBAXUM_ROOT)/bootloader/memmap.ld -L$(RV_ROOT)/$(PREFIX)/lib/$(ARCH)/ilp32 -L$(RV_ROOT)/lib/gcc/$(PREFIX)/11.1.0/$(ARCH)/ilp32 -melf32lriscv
+LDFLAGS=-T $(LIBAXUM_ROOT)/bootloader/memmap.ld -L$(RV_ROOT)/$(PREFIX)/lib/$(ARCH)/ilp32 -L$(RV_ROOT)/lib/gcc/$(PREFIX)/10.2.0/$(ARCH)/ilp32 -melf32lriscv
 LDLIBS=-lgcc
 
 CSRC=$(wildcard $(LIBAXUM_ROOT)/bootloader/*.c) $(LIBAXUM_ROOT)/uart.c $(wildcard $(LIBAXUM_ROOT)/libc/*.c)
