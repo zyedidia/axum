@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include "uart.h"
+#include "exception.h"
 
 extern int main();
 
@@ -15,6 +16,8 @@ void _cstart() {
 
     uart_set_baud(115200);
     init_printf(NULL, uart_putc);
+
+    exception_init();
 
     main();
 }
