@@ -40,6 +40,10 @@ typedef struct {
 regs_t exc_regs;
 
 void exception_init() {
+    exc_regs.sp = 0x104000;
+
+    write_csr(0x346, &exc_regs);
+
     // timer interrupt every 1ms
     timer_init_irq(1000);
 
@@ -47,8 +51,6 @@ void exception_init() {
     write_csr(mie, (1 << 7) | (1 << 11));
     // enable interrupts
     write_csr(mstatus, (1 << 3));
-
-    exc_regs.sp = 0x104000;
 }
 
 void _empty_exception(unsigned mcause) { (void) mcause; while (1) {} }

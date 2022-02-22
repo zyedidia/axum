@@ -10,27 +10,11 @@ _halt:
 	j _halt
 
 _exception_entry:
-	addi sp, sp, -4
-	sw s0, 0(sp)
-	la s0, exc_regs
-	csrw 0x345, s0
 	call exception_entry
-	la s0, _user_regs
-	csrw 0x345, s0
-	lw s0, 0(sp)
-	addi sp, sp, 4
 	mret
 
 _timer_irq_entry:
-	addi sp, sp, -4
-	sw s0, 0(sp)
-	la s0, exc_regs
-	csrw 0x345, s0
 	call timer_irq_entry
-	la s0, _user_regs
-	csrw 0x345, s0
-	lw s0, 0(sp)
-	addi sp, sp, 4
 	mret
 
 .section .vectors, "ax"
