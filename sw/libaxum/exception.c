@@ -42,7 +42,7 @@ regs_t exc_regs;
 void exception_init() {
     exc_regs.sp = 0x104000;
 
-    write_csr(0x346, &exc_regs);
+    write_csr(CSR_MTRF, &exc_regs);
 
     // timer interrupt every 1ms
     timer_init_irq(1000);

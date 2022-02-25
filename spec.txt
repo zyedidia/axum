@@ -1,10 +1,7 @@
 three new CSRs:
 
-MRF (machine register file): holds the address of the current register file, or a special mode:
-    [31:2]: address of current register file
-    [1:0]: 00 if mode is "addressed rf disabled"
-    [1:0]: 01 if mode is "addressed rf enabled"
-    [1:0]: 10, 11 are reserved
+MRF (machine register file): holds the address of the current register file.
+    If 0, then the rf is not saved/loaded.
 
 MTRF (machine trap register file): holds the value that MRF will be assigned when a trap occurs
 
@@ -19,10 +16,10 @@ When mret is executed:
 
 Boot sequence:
 MRF  <- 0
-MTRF <- exc_regs
-MRF  <- init_thread.regs
+MTRF <- &exc_regs
+MRF  <- &init_thread.regs
 main()
 
 on trap:
 if ctx switch:
-MPRF <- new_thread.regs
+    MPRF <- &new_thread.regs
