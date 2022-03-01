@@ -1,0 +1,25 @@
+Architectures:
+
+* 1rf
+    * One register file
+    * Spill and fill entire register file
+* rf-ctx
+    * 4 register files (normal, interrupt, syscall, fault)
+* rf-cache
+    * K register files
+
+Optimizations:
+
+* Lazy spill/fill
+    * At register granularity
+* Partially lazy spill/fill
+    * At caller/callee saved register granularity
+
+Metrics:
+
+* Cycles
+    * Interrupt with no context switch
+    * Interrupt with context switch
+* Power usage
+* Area cost
+* HDL overhead

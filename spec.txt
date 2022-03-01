@@ -5,7 +5,8 @@ MRF (machine register file): holds the address of the current register file.
 
 MTRF (machine trap register file): holds the value that MRF will be assigned when a trap occurs
 
-MPRF (machine previous register file): holds the value that MRF will be assigned when an mret occurs. Also holds the previous MRF during a trap.
+MPRF (machine previous register file): holds the value that MRF will be
+assigned when an mret occurs. Also holds the previous MRF during a trap.
 
 When a trap occurs:
     MPRF <- MRF
