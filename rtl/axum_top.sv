@@ -155,7 +155,7 @@ module axum_top
     );
 
     ibex_top #(
-        .RegFile(ibex_pkg::RegFileFPGA),
+        .RegFile(ibex_pkg::RegFileFF),
         .DmHaltAddr      ( 32'h00100000    ),
         .DmExceptionAddr ( 32'h00100000    )
     ) u_top (

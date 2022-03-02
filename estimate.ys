@@ -1,0 +1,13 @@
+read_verilog -defer -sv generated/*.v
+read_verilog -defer -sv rtl/lib/*.v
+
+hierarchy -top axum_top
+flatten
+synth -top axum_top
+
+# stat -tech cmos
+
+dfflibmap -prepare -liberty stdcells.lib
+abc -liberty stdcells.lib
+dfflibmap -liberty stdcells.lib
+stat -liberty stdcells.lib
