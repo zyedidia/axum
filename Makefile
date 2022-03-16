@@ -30,7 +30,7 @@ SOURCES := ibex/rtl/ibex_alu.sv \
 		   ibex/rtl/ibex_multdiv_slow.sv \
 		   ibex/rtl/ibex_pmp.sv \
 		   ibex/rtl/ibex_prefetch_buffer.sv \
-		   ibex/rtl/ibex_register_file_fpga.sv \
+		   ibex/rtl/ibex_register_file_ff.sv \
 		   ibex/rtl/ibex_top.sv \
 		   ibex/rtl/ibex_top_tracing.sv \
 		   ibex/rtl/ibex_wb_stage.sv \
